@@ -7,6 +7,8 @@ const express = require('express');
 const app = express();
 var bodyParser = require('body-parser');
 var low = require('lowdb')
+var shortid = require('shortid');
+
 var FileSync = require('lowdb/adapters/FileSync');
 var adapter = new FileSync('db.json');
  
@@ -48,7 +50,19 @@ app.get('/todos/create', (req, res) => {
   res.render('todos/create');
 });
 
+app.get('/todos/:id/delete', (req, res) => {
+  var id = req.params.id;
+  
+  var todo = db.get('todos').remove({ id: id }).write();
+  
+  // res.render('todos/delete', {
+  //   todo: todo
+  // });
+  res.redirect('/todos');
+});
+
 app.post('/todos/create', (req, res) => {
+  req.body.id = shortid.generate();
 	db.get('todos').push(req.body).write();
 	res.redirect('/todos');
 });

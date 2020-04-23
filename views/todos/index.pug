@@ -8,4 +8,7 @@ form(action="/todos/search", method="GET")
 
 ul
   each todo in todos
-    li= todo.name
+    li
+      span= todo.name
+      span &nbsp
+      a(href='/todos/' + todo.id + '/delete') delete
