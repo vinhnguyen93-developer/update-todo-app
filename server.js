@@ -6,19 +6,21 @@
 const express = require('express');
 const app = express();
 var bodyParser = require('body-parser');
+var low = require('lowdb')
+var FileSync = require('lowdb/adapters/FileSync');
+var adapter = new FileSync('db.json');
+ 
+var db = low(adapter);
+
+// Set some defaults (required if your JSON file is empty)
+db.defaults({ todos: [] })
+  .write()
 
 app.set('view engine', 'pug');
 app.set('views', './views');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-var todos = [
-  {id: 1, name: 'Đi chợ'},
-  {id: 2, name: 'Nấu cơm'},
-  {id: 3, name: 'Rửa bát'},
-  {id: 4, name: 'Học code tại CodersX'}
-];
 
 // https://expressjs.com/en/starter/basic-routing.html
 app.get('/', (req, res) => {
@@ -27,13 +29,13 @@ app.get('/', (req, res) => {
 
 app.get('/todos', (req, res) => {
   res.render('todos/index', {
-    todos: todos
+    todos: db.get('todos').value()
   });
 });
 
 app.get('/todos/search', (req, res) => {
   var q = req.query.q;
-  var matchedTodo = todos.filter((todo) => {
+  var matchedTodo = db.get('todos').value().filter((todo) => {
     return todo.name.toLowerCase().indexOf(q.toLowerCase()) !== -1;
   });
   
@@ -47,7 +49,7 @@ app.get('/todos/create', (req, res) => {
 });
 
 app.post('/todos/create', (req, res) => {
-	todos.push(req.body);
+	db.get('todos').push(req.body).write();
 	res.redirect('/todos');
 });
 
