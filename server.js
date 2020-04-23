@@ -5,9 +5,13 @@
 // but feel free to use whatever libraries or frameworks you'd like through `package.json`.
 const express = require('express');
 const app = express();
+var bodyParser = require('body-parser');
 
 app.set('view engine', 'pug');
 app.set('views', './views');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 var todos = [
   {id: 1, name: 'Đi chợ'},
@@ -21,7 +25,7 @@ app.get('/', (req, res) => {
  res.render('index'); 
 });
 
-app.get('/todos', function(req, res) {
+app.get('/todos', (req, res) => {
   res.render('todos/index', {
     todos: todos
   });
@@ -36,6 +40,15 @@ app.get('/todos/search', (req, res) => {
   res.render('todos/index', {
     todos: matchedTodo
   });
+});
+
+app.get('/todos/create', (req, res) => {
+  res.render('todos/create');
+});
+
+app.post('/todos/create', (req, res) => {
+	todos.push(req.body);
+	res.redirect('/todos');
 });
 
 // listen for requests :)
